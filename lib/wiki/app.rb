@@ -11,7 +11,7 @@ module Wiki
     pattern :path, PATH_PATTERN
     pattern :sha,  SHA_PATTERN
 
-    set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
+    set :haml, :format => :xhtml, :attr_wrapper  => '"'
     set :methodoverride, true
     set :static, true
     set :root, File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
@@ -154,7 +154,7 @@ module Wiki
         last_modified(File.mtime(template_path(:sass, :style)))
         # Fallback to default style
         content_type 'text/css', :charset => 'utf-8'
-        sass :style
+        sass :style, :sass => {:style => :compact}
       end
     end
     

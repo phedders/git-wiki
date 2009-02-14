@@ -1,5 +1,7 @@
 #!/usr/bin/env rackup
 require 'wiki/app'
+require 'rack'
+#require 'rack/contrib'
 
 path = File.expand_path(File.dirname(__FILE__))
 config_file = File.join(path, 'config.yml')
@@ -18,5 +20,6 @@ else
 end
 
 use Rack::Session::Pool
+#use Rack::Profiler, :printer => :graph
 Wiki::App.set :config, config
 run Wiki::App

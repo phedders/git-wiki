@@ -1,7 +1,9 @@
 require 'wiki/extensions'
 
 module Wiki
-  class MessageError < StandardError; end
+  class WikiError < StandardError; end
+
+  class MessageError < WikiError; end
 
   module Utils
     def self.included(base)

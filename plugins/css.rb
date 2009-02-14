@@ -3,7 +3,7 @@ module Wiki
 
   Engine.create(:css, 6, false) do
     accepts {|page| page.extension == 'sass' }
-    output  {|page| Sass::Engine.new(page.content).render }
+    output  {|page| Sass::Engine.new(page.content, :style => :compact).render }
     mime    {|page| 'text/css' }
   end
 end

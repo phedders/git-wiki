@@ -71,7 +71,7 @@ class String
   end
 
   def truncate(max, omission = '...')
-    (length > max ? self[0...max-3] + omission : self)
+    (length > max ? self[0...max] + omission : self)
   end
 
   def /(name)

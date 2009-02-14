@@ -1,12 +1,12 @@
 - object = @object || @page || @tree
 %ul
   %li
-    %a{:href=>object_path(object, :path => '/')}
+    %a{:href=>object_path(object, :path => '/Home')}
       = image('Home', :home)
       Home
   = breadcrumbs(object)
   - if object && !object.current?
-    %li.noborder= "Tree version #{object.commit.sha.truncate(16)}"
+    %li.noborder= "Tree version #{object.commit.sha.truncate(8, '&hellip;')}"
 %ul.wiki
   %li.title Wiki Menu
   - if @menu.include?(:version)
