@@ -1,5 +1,5 @@
 require 'sinatra/base'
-require 'git'
+require 'grit'
 require 'wiki/utils'
 require 'wiki/extensions'
 
@@ -22,12 +22,12 @@ module Wiki
       path ||= ''
       path = path.cleanpath
       forbid_invalid_path(path)
-      commit = sha ? repo.gcommit(sha) : repo.log(1).path(path).first rescue nil
+      commit = sha ? repo.commit(sha) : repo.log('master', path, :max_count => 1).first rescue nil
       return nil if !commit
-      object = git_find(repo, path, commit)
+      object = commit.tree/path
       return nil if !object 
-      return Page.new(repo, path, object, commit, !sha) if object.blob?
-      return Tree.new(repo, path, object, commit, !sha) if object.tree?
+      return Page.new(repo, path, object, commit, !sha) if object.is_a? Grit::Blob
+      return Tree.new(repo, path, object, commit, !sha) if object.is_a? Grit::Tree
       nil
     end
 
@@ -54,7 +54,7 @@ module Wiki
     end
 
     def history
-      @history ||= @repo.log.path(path).to_a
+      @history ||= @repo.log('master', path)
     end
 
     def prev_commit
@@ -64,7 +64,7 @@ module Wiki
 
     def next_commit
       h = history
-      h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].committer_date <= @commit.committer_date }
+      h.each_index { |i| return (i == 0 ? nil : h[i - 1]) if h[i].date <= @commit.date }
       h.last # FIXME. Does not work correctly if history is too short
     end
       
@@ -106,7 +106,7 @@ module Wiki
 
     def update_prev_last_commit
       if !@last_commit
-        commits = @repo.log(2).object(@commit.sha).path(@path).to_a
+        commits = @repo.log(@commit.sha, @path, :max_count => 2)
         @prev_commit = commits[1]
         @last_commit = commits[0]
       end
@@ -119,16 +119,6 @@ module Wiki
 	forbid('Invalid path' => (!path.blank? && path !~ /^#{PATH_PATTERN}$/))
       end
 
-      def git_find(repo, path, commit)
-        return nil if !commit
-        if path.blank?
-          return commit.gtree rescue nil
-        elsif path =~ /\//
-          return path.split('/').inject(commit.gtree) { |t, x| t.children[x] } rescue nil
-        else
-          return commit.gtree.children[path] rescue nil
-        end
-      end
     end
 
   end
@@ -151,7 +141,7 @@ module Wiki
     end
 
     def saved_content
-      @object ? @object.contents : nil
+      @object ? @object.data : nil
     end
 
     def saved?
@@ -178,7 +168,7 @@ module Wiki
 
       @content = @prev_commit = @last_commit = @history = nil
       @commit = history.first
-      @object = git_find(@repo, @path, @commit) || raise(NotFound.new(path))
+      @object = @commit.tree/@path || raise(NotFound.new(path))
       @current = true
     end
 
@@ -204,8 +194,13 @@ module Wiki
     end
 
     def children
-      @children ||= @object.trees.to_a.map {|x| Tree.new(repo, path/x[0], x[1], commit, current?)}.sort {|a,b| a.name <=> b.name } +
-                    @object.blobs.to_a.map {|x| Page.new(repo, path/x[0], x[1], commit, current?)}.sort {|a,b| a.name <=> b.name }
+      @children ||= @object.contents.map do |object|
+        if object.is_a? Grit::Tree
+          Tree.new(repo, path/object.name, object, commit, current?)
+        elsif object.is_a? Grit::Blob
+          Tree.new(repo, path/object.name, object, commit, current?)
+        end
+      end.compact
     end
 
     def pretty_name
@@ -213,7 +208,7 @@ module Wiki
     end
 
     def archive
-      @repo.archive(sha, nil, :format => 'tgz', :prefix => "#{safe_name}/")
+      @repo.archive_to_file(sha, "#{safe_name}/", "#{safe_name}.tar.gz")   
     end
   end
 end

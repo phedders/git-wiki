@@ -23,5 +23,5 @@
           %td
             %a.sha{:href=>object_path(@object, :sha => commit)}=commit.sha
           %td&= commit.author.name
-          %td= date(commit.author_date)
+          %td= date(commit.date)
           %td&= commit.message.truncate(50)

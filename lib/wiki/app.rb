@@ -33,22 +33,7 @@ module Wiki
       @logger = Logger.new(App.config['logfile'])
       @logger.level = Logger.const_get(App.config['loglevel'])
 
-      @repo = Grit::Repo.new(App.config['repository'])
-
-      # TODO
-
-      if File.exists?(App.config['repository']) && File.exists?(App.config['workspace'])
-        @logger.info 'Opening repository'
-        @repo = Git.open(App.config['workspace'], :repository => App.config['repository'],
-                         :index => File.join(App.config['repository'], 'index'), :log => @logger)
-      else
-        @logger.info 'Initializing repository'
-        @repo = Git.init(App.config['workspace'], :repository => App.config['repository'],
-                         :index => File.join(App.config['repository'], 'index'), :log => @logger)
-        page = Page.new(@repo, 'init.txt')
-        page.write('This file is used to initialize the repository. It can be deleted.', 'Initialize Repository')
-        @logger.info 'Repository initialized'
-      end
+      @repo = Grit::Repo.new(App.config['repository'], :is_bare => true)
    end
 
     before do
@@ -134,6 +119,7 @@ module Wiki
     end
 
     get '/search' do
+      # TODO
       matches = @repo.grep(params[:pattern], nil, :ignore_case => true)
       @matches = []
       matches.each_pair do |id,lines|
@@ -293,7 +279,7 @@ module Wiki
       if App.production?
         response['Cache-Control'] = 'private, must-revalidate, max-age=0'
         etag(object.sha + tag)
-        last_modified(object.commit.committer_date)
+        last_modified(object.commit.date)
       end
     end
 

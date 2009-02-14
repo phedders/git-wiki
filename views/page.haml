@@ -3,6 +3,6 @@
   @title  = @page.pretty_name
   @footer = "<a href=\"#{object_path(@page, :sha => @page.last_commit)}\">Permalink</a> &bull; " +
             "Version <a class=\"sha\" href=\"#{object_path(@page, :sha => @page.last_commit)}\">#{@page.last_commit.sha.truncate(8, '&hellip;')}</a> " +
-            "by #{@page.last_commit.committer.name}, #{date @page.last_commit.committer_date}"
+            "by #{@page.last_commit.committer.name}, #{date @page.last_commit.date}"
   @feed = (@page.path/'changelog.rss').urlpath
 ~ @content

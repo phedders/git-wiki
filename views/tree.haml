@@ -3,7 +3,7 @@
   @title  = @tree.pretty_name
   @footer = "<a href=\"#{object_path(@tree, :sha => @tree.last_commit)}\">Permalink</a> &bull; " +
             "Version <a class=\"sha\" href=\"#{object_path(@tree, :sha => @tree.last_commit)}\">#{@tree.last_commit.sha.truncate(8, '&hellip;')}</a> " +
-            "by #{@tree.last_commit.committer.name}, #{date @tree.last_commit.committer_date}"
+            "by #{@tree.last_commit.committer.name}, #{date @tree.last_commit.date}"
   @feed = (@tree.path/'changelog.rss').urlpath
 %table.sortable
   %thead
