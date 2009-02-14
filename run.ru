@@ -1,5 +1,5 @@
 #!/usr/bin/env rackup
-require 'wiki'
+require 'wiki/app'
 
 path = File.expand_path(File.dirname(__FILE__))
 config_file = File.join(path, 'config.yml')

@@ -136,6 +136,9 @@ hr
 
 #header
   :background #0B3E71
+  :background-image url(/images/header_bg1.png)
+  :background-repeat repeat-x
+  :background-position top left
   :padding 5px
   :clear both
   :height 2.5em
@@ -148,7 +151,7 @@ hr
     :margin 0
     :padding 0
     :float left
-  #box
+  #info
     :float right
     :border 1px solid #AAA
     :background #FFFFC2
@@ -231,29 +234,27 @@ hr
   :text-align right
   :line-height 1.7em
 
-#main
+#body
   :display block
   :overflow hidden
   :margin 0
   :padding 0
-
-#content
-  :padding 1em 1em 1em 2em
-  :display block
-  :float left
-  :width 65%
-
-#sidebar
-  :min-height 600px
-  :width 12em
-  :display block
-  :float left
-  :border-right 1px solid #999
-  :border-bottom 1px solid #999
-  :background #EEF
-  :height 20em
-  :padding 1em
-  :margin 0 0 1em 0
+  #content
+    :padding 1em 1em 1em 2em
+    :display block
+    :float left
+    :width 65%
+  #sidebar
+    :min-height 600px
+    :width 12em
+    :display block
+    :float left
+    :border-right 1px solid #999
+    :border-bottom 1px solid #999
+    :background #EEF
+    :height 20em
+    :padding 1em
+    :margin 0 0 1em 0
 
 .sha, tt, pre, code, kbd
   :font-family "Bitstream Vera Mono", monospace
@@ -356,7 +357,9 @@ form
 body.timemachine
   :background #EEE
   #header
-    :background #282828
+    :background-image url(/images/header_bg2.png)
+    :background-repeat repeat-x
+    :background-position top left
     h1.timemachine
       :font-style italic
       :margin-left 1em

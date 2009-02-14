@@ -14,7 +14,7 @@ module Wiki
     set :haml, { :format => :xhtml, :attr_wrapper  => '"' }
     set :methodoverride, true
     set :static, true
-    set :root, File.expand_path(File.dirname(__FILE__))
+    set :root, File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
     set :raise_errors, false
     set :dump_errors, true
 
@@ -61,6 +61,7 @@ module Wiki
 
       content_type 'application/xhtml+xml', :charset => 'utf-8'
 
+      forbid('No ip given' => !request.ip)
       @user = session[:user] || User.anonymous(request.ip)
       @footer = nil
       @feed = nil

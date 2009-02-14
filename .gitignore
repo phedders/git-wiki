@@ -6,4 +6,4 @@ thin.sh
 env.sh
 config.yml
 doc
-
+coverage

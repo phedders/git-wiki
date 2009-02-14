@@ -14,12 +14,12 @@
       %link{:rel => 'alternate',  :href => @feed, :type => 'application/rss+xml', :title=> 'RSS'}
   - object = @object || @page || @tree
   - timemachine = object && !object.current?
-  %body{:class => timemachine ? 'timemachine' : ''}
+  %body{timemachine ? {:class => 'timemachine'} : {}}
     #header
       %h1&= Wiki::App.config['title']
       - if timemachine
         %h1.timemachine Time Machine
-      #box
+      #info
         User
         %a{:href=>'/profile'}= @user.name
         |
@@ -31,7 +31,7 @@
         %form{:action=>'/search',:method=>'get'}
           %input.clear{:type=>'text',:name=>'pattern', :value=> params[:pattern] || 'Search'}
     #menu= menu
-    #main
+    #body
       #sidebar= sidebar
       #content
         %h1= @title

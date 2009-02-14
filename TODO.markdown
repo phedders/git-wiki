@@ -19,6 +19,7 @@ TODO
 - Clean up stylesheet
 - More caching where it makes sense
 - Support for branching operations (Maybe not that important for a gui?)
+- Switch to grit maybe (grit does not support some things yet, but has native implementation of some git features)
 - (DONE) Problem with last modified dates, they always refer to the whole tree
 - (DONE) Breadcrumbs for tree browsing
 - (DONE) Automatic file extensions for wikitext files
