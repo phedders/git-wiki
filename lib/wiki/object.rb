@@ -194,13 +194,11 @@ module Wiki
     end
 
     def children
-      @children ||= @object.contents.map do |object|
-        if object.is_a? Grit::Tree
-          Tree.new(repo, path/object.name, object, commit, current?)
-        elsif object.is_a? Grit::Blob
-          Tree.new(repo, path/object.name, object, commit, current?)
-        end
-      end.compact
+      @children ||=\
+      begin
+        @object.contents.select {|x| x.is_a? Grit::Tree }.map {|x| Tree.new(repo, path/x.name, x, commit, current?)}.sort {|a,b| a.name <=> b.name } +
+        @object.contents.select {|x| x.is_a? Grit::Blob }.map {|x| Blob.new(repo, path/x.name, x, commit, current?)}.sort {|a,b| a.name <=> b.name }
+      end                    
     end
 
     def pretty_name
