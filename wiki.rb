@@ -1,4 +1,4 @@
-%w(rubygems sinatra/base sinatra/complex_patterns git haml
+%w(rubygems sinatra/base sinatra/complex_patterns grit haml
 sass logger cgi wiki/extensions wiki/utils
 wiki/object wiki/helper wiki/user wiki/engine wiki/highlighter wiki/cache).each { |dep| require dep }
 
@@ -32,6 +32,10 @@ module Wiki
      
       @logger = Logger.new(App.config['logfile'])
       @logger.level = Logger.const_get(App.config['loglevel'])
+
+      @repo = Grit::Repo.new(App.config['repository'])
+
+      # TODO
 
       if File.exists?(App.config['repository']) && File.exists?(App.config['workspace'])
         @logger.info 'Opening repository'
