@@ -22,9 +22,9 @@ module Wiki
       path ||= ''
       path = path.cleanpath
       forbid_invalid_path(path)
-      commit = sha ? repo.commit(sha) : repo.log('master', path, :max_count => 1).first rescue nil
+      commit = sha ? repo.commit(sha) : repo.log('HEAD', path, :max_count => 1).first rescue nil
       return nil if !commit
-      object = commit.tree/path
+      object = path.blank? ? commit.tree : commit.tree/path
       return nil if !object 
       return Page.new(repo, path, object, commit, !sha) if object.is_a? Grit::Blob
       return Tree.new(repo, path, object, commit, !sha) if object.is_a? Grit::Tree
@@ -40,7 +40,7 @@ module Wiki
     end
 
     def sha
-      new? ? '' : object.sha
+      new? ? '' : object.id
     end
 
     # Browsing current tree?
@@ -54,7 +54,7 @@ module Wiki
     end
 
     def history
-      @history ||= @repo.log('master', path)
+      @history ||= @repo.log('HEAD', path)
     end
 
     def prev_commit
@@ -106,7 +106,7 @@ module Wiki
 
     def update_prev_last_commit
       if !@last_commit
-        commits = @repo.log(@commit.sha, @path, :max_count => 2)
+        commits = @repo.log(@commit.id, @path, :max_count => 2)
         @prev_commit = commits[1]
         @last_commit = commits[0]
       end
@@ -168,7 +168,7 @@ module Wiki
 
       @content = @prev_commit = @last_commit = @history = nil
       @commit = history.first
-      @object = @commit.tree/@path || raise(NotFound.new(path))
+      @object = @path.blank? ? @commit.tree : @commit.tree/@path || raise(NotFound.new(path))
       @current = true
     end
 
@@ -197,7 +197,7 @@ module Wiki
       @children ||=\
       begin
         @object.contents.select {|x| x.is_a? Grit::Tree }.map {|x| Tree.new(repo, path/x.name, x, commit, current?)}.sort {|a,b| a.name <=> b.name } +
-        @object.contents.select {|x| x.is_a? Grit::Blob }.map {|x| Blob.new(repo, path/x.name, x, commit, current?)}.sort {|a,b| a.name <=> b.name }
+        @object.contents.select {|x| x.is_a? Grit::Blob }.map {|x| Page.new(repo, path/x.name, x, commit, current?)}.sort {|a,b| a.name <=> b.name }
       end                    
     end
 

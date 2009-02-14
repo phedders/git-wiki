@@ -33,6 +33,8 @@ module Wiki
       @logger = Logger.new(App.config['logfile'])
       @logger.level = Logger.const_get(App.config['loglevel'])
 
+      Grit.debug = true
+      Grit.logger = @logger
       @repo = Grit::Repo.new(App.config['repository'], :is_bare => true)
    end
 
