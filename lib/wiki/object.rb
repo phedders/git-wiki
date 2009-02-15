@@ -22,7 +22,7 @@ module Wiki
       path ||= ''
       path = path.cleanpath
       forbid_invalid_path(path)
-      commit = sha ? repo.commit(sha) : repo.log('HEAD', path, :max_count => 1).first rescue nil
+      commit = sha ? repo.commit(sha) : repo.log('HEAD', path, :max_count => 1).first
       return nil if !commit
       object = path.blank? ? commit.tree : commit.tree/path
       return nil if !object 
@@ -159,12 +159,13 @@ module Wiki
       forbid('No content'   => @content.blank?,
              'Object already exists' => new? && Object.find(@repo, @path))
 
-      repo.chdir {
+      Dir.chdir(@repo.working_dir) {
         FileUtils.makedirs File.dirname(@path)
         File.open(@path, 'w') {|f| f << @content }
       }
       repo.add(@path)
-      repo.commit(message.blank? ? '(Empty commit message)' : message, :author => author)
+      # FIXME (Avoid direct cmdline access)
+      repo.git.commit(:message => message.blank? ? '(Empty commit message)' : message, :author => author)
 
       @content = @prev_commit = @last_commit = @history = nil
       @commit = history.first

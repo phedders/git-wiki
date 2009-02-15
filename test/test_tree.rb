@@ -56,7 +56,7 @@ class TC_Tree < Test::Unit::TestCase
     assert_equal 'tree1', tree.children[0].path
     assert_equal 'tree2', tree.children[1].path
     assert_equal 'tree3', tree.children[2].path
-    assert_equal 'init.txt', tree.children[3].path
+    assert_equal 'Home',  tree.children[3].path
     assert_equal 'page1', tree.children[4].path
     assert_equal 'page2', tree.children[5].path
     assert_equal 'page3', tree.children[6].path

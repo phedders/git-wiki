@@ -50,8 +50,8 @@ class TC_Utils < Test::Unit::TestCase
   end
 
   def test_trunacte
-    assert_equal 'Annabel Lee...', 'Annabel Lee It was many and many a year ago'.truncate(14)
-    assert_equal 'In a kingdom by the sea', 'In a kingdom by the sea'.truncate(42)
+    assert_equal 'Annabel Lee...', 'Annabel Lee It was many and many a year ago'.truncate(11)
+    assert_equal 'In a kingdom by the sea', 'In a kingdom by the sea'.truncate(39)
   end
 
   def test_slash

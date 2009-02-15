@@ -22,9 +22,9 @@ class TC_Object < Test::Unit::TestCase
     assert_instance_of Wiki::Tree, Wiki::Tree.find(@repo, '/')
     assert_nil Wiki::Page.find(@repo, '/')
 
-    assert_instance_of Wiki::Page, Wiki::Object.find(@repo, 'init.txt')
-    assert_nil Wiki::Tree.find(@repo, 'init.txt')
-    assert_instance_of Wiki::Page, Wiki::Page.find(@repo, 'init.txt')
+    assert_instance_of Wiki::Page, Wiki::Object.find(@repo, 'Home')
+    assert_nil Wiki::Tree.find(@repo, 'Home')
+    assert_instance_of Wiki::Page, Wiki::Page.find(@repo, 'Home')
 
     assert_instance_of Wiki::Tree, Wiki::Object.find(@repo, '/')
     assert_instance_of Wiki::Tree, Wiki::Tree.find(@repo, '/')
@@ -42,10 +42,10 @@ class TC_Object < Test::Unit::TestCase
       Wiki::Page.find!(@repo, '/root')
     end
 
-    assert_instance_of Wiki::Page, Wiki::Object.find!(@repo, '/init.txt')
-    assert_instance_of Wiki::Page, Wiki::Page.find!(@repo, '/init.txt')
+    assert_instance_of Wiki::Page, Wiki::Object.find!(@repo, '/Home')
+    assert_instance_of Wiki::Page, Wiki::Page.find!(@repo, '/Home')
     assert_raise Wiki::Object::NotFound do
-      Wiki::Tree.find!(@repo, '/init.txt')
+      Wiki::Tree.find!(@repo, '/Home')
     end
 
     assert_raise Wiki::Object::NotFound do
@@ -60,14 +60,14 @@ class TC_Object < Test::Unit::TestCase
   end
 
   def test_new?
-    assert !Wiki::Page.find(@repo, 'init.txt').new?
+    assert !Wiki::Page.find(@repo, 'Home').new?
     assert !Wiki::Tree.find(@repo, '').new?
     assert Wiki::Page.new(@repo, 'new').new?
     assert Wiki::Tree.new(@repo, 'new').new?
   end
 
   def test_type
-    assert Wiki::Page.find(@repo, 'init.txt').page?
+    assert Wiki::Page.find(@repo, 'Home').page?
     assert Wiki::Tree.find(@repo, '').tree?
   end
 

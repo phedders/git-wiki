@@ -1,7 +1,7 @@
 - object = @object || @page || @tree
 %ul
   %li
-    %a{:href=>object_path(object, :path => '/Home')}
+    %a{:href=>object_path(object, :path => Wiki::App.config['main_page'].urlpath)}
       = image('Home', :home)
       Home
   = breadcrumbs(object)

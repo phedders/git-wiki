@@ -15,7 +15,8 @@ else
     'cache'        => File.join(path, '.wiki', 'cache'),
     'loglevel'     => 'INFO',
     'logfile'      => File.join(path, '.wiki', 'log'),
-    'default_mime' => 'text/x-creole'
+    'default_mime' => 'text/x-creole',
+    'main_page'    => 'Home'
   }
 end
 

@@ -19,7 +19,7 @@ module Wiki
     set :dump_errors, true
 
     def initialize
-      %w(title repository workspace store cache loglevel logfile default_mime).each do |key|
+      %w(title repository workspace store cache loglevel logfile default_mime main_page).each do |key|
         raise RuntimeError.new('Application not properly configured') if App.config[key].blank?
       end
 
@@ -36,6 +36,13 @@ module Wiki
       Grit.debug = true
       Grit.logger = @logger
       @repo = Grit::Repo.new(App.config['repository'], :is_bare => true)
+      @repo.working_dir = App.config['workspace']
+
+      if !Page.find(@repo, App.config['main_page'])
+        page = Page.new(@repo, App.config['main_page'])
+        page.write('This is the main page of the wiki.', 'Initialize Repository')
+        @logger.info 'Repository initialized'
+      end
    end
 
     before do
@@ -67,7 +74,7 @@ module Wiki
     end
 
     get '/' do
-      redirect '/Home'
+      redirect App.config['main_page'].urlpath
     end
 
     get '/login', '/signup' do
@@ -216,6 +223,7 @@ module Wiki
       begin
         show
       rescue Object::NotFound
+        params[:path] ||= ''
         redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
       end
     end

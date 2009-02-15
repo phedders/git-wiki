@@ -6,3 +6,4 @@ cache:        '/home/user/wiki/cache'
 loglevel:     INFO
 logfile:      '/home/user/wiki/log'
 default_mime: 'text/x-creole'
+main_page:    'Home'

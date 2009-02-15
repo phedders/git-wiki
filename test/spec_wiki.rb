@@ -16,6 +16,7 @@ describe 'wiki' do
       'loglevel'     => 'INFO',
       'logfile'      => File.join(@test_path, 'log'),
       'default_mime' => 'text/x-creole',
+      'main_page'    => 'Home'
     }
     Wiki::App.set :config, config
     @app = Wiki::App.new
