@@ -3,6 +3,19 @@ README
 
 Git-Wiki is a a wiki that stores pages in a git repository.
 
+Demo installation at http://git-wiki.kicks-ass.org/
+
+Features
+--------
+
+- History
+- Show diffs
+- Edit page, append to page, upload files
+- Plugin system
+- Multiple renderers
+- LaTeX
+- Syntax highlighting (embedded code blocks)
+
 Installation
 ------------
 
@@ -22,11 +35,12 @@ Optional Dependencies
 
 - [RubyPants][] to fix puncation
 - [Pygments][] for syntax highlighting
+- [latex-renderer][] for latex output (minad-latex-renderer gem from github)
 
 Dependencies for page rendering
 -------------------------------
 
-- [creole][] for creole wikitext rendering
+- [creole][] for creole wikitext rendering (minad-creole gem from github)
 - [RDiscount][] for markdown rendering
 - [RedCloth][] for textile rendering
 
@@ -38,6 +52,7 @@ At least one of the renderers should be installed.
   [RDiscount]: http://github.com/rtomayko/rdiscount
   [RedCloth]: http://whytheluckystiff.net/ruby/redcloth/
   [RubyPants]: http://chneukirchen.org/blog/static/projects/rubypants.html
-  [creole]: http://github.com/larsch/creole
+  [creole]: http://github.com/minad/creole
+  [latex-renderer]: http://github.com/minad/latex-renderer
   [pygments]: http://pygments.org/
 

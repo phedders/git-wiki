@@ -1,19 +1,18 @@
-%w(rubygems sinatra/base sinatra/complex_patterns grit haml
+%w(rubygems sinatra/base sinatra/extensions grit haml
 sass logger cgi wiki/extensions wiki/utils
-wiki/object wiki/helper wiki/user wiki/engine wiki/highlighter wiki/cache).each { |dep| require dep }
+wiki/object wiki/helper wiki/user wiki/engine wiki/cache wiki/mime wiki/plugin).each { |dep| require dep }
 
 module Wiki
-  class App < Sinatra::Base
-    include Sinatra::ComplexPatterns
+  # Main class of the application
+  class App < Sinatra::Application
     include Helper
     include Utils
 
-    pattern :path, PATH_PATTERN
-    pattern :sha,  SHA_PATTERN
-
+    # Sinatra options
+    set :patterns, :path => PATH_PATTERN, :sha => SHA_PATTERN
     set :haml, :format => :xhtml, :attr_wrapper  => '"'
     set :methodoverride, true
-    set :static, true
+    set :static, false
     set :root, File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
     set :raise_errors, false
     set :dump_errors, true
@@ -29,7 +28,7 @@ module Wiki
 
       Entry.store = App.config['store']
       Cache.instance = Cache::Disk.new(App.config['cache'])
-     
+
       @logger = Logger.new(App.config['logfile'])
       @logger.level = Logger.const_get(App.config['loglevel'])
 
@@ -43,15 +42,15 @@ module Wiki
         page.write('This is the main page of the wiki.', 'Initialize Repository')
         @logger.info 'Repository initialized'
       end
-   end
 
+      Plugin.logger = @logger
+      Plugin.dir = File.join(App.root, 'plugins')
+      Plugin.load_all
+    end
+
+    # Executed before each request
     before do
       @logger.debug request.env
-
-      # Sinatra does not unescape before pattern matching
-      # Paths with spaces won't be recognized
-      # FIXME: Implement this as middleware?
-      request.path_info = CGI::unescape(request.path_info)
 
       content_type 'application/xhtml+xml', :charset => 'utf-8'
 
@@ -62,15 +61,29 @@ module Wiki
       @title = ''
     end
 
+    # Handle 404s
     not_found do
-      @error = request.env['sinatra.error']
-      haml :error
+      if request.env['wiki.redirect_to_new']
+        # Redirect to create new page if flag is set
+        redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
+      else
+        @error = request.env['sinatra.error'] || Sinatra::NotFound.new
+        haml :error
+      end
     end
 
+    # Show wiki error page
     error do
       @error = request.env['sinatra.error']
       @logger.error @error
       haml :error
+    end
+
+    # Static files
+    get %r{^/sys/(.*[^/])$} do |path|
+      path = File.join(options.public, path)
+      not_found if !File.file?(path)
+      send_file path
     end
 
     get '/' do
@@ -127,18 +140,6 @@ module Wiki
       haml :profile
     end
 
-    get '/search' do
-      # TODO
-      matches = @repo.grep(params[:pattern], nil, :ignore_case => true)
-      @matches = []
-      matches.each_pair do |id,lines|
-        if id =~ /^#{SHA_PATTERN}:(.+)$/
-          @matches << [$1,lines.map {|x| x[1] }.join("\n").truncate(100)]
-        end
-      end
-      haml :search
-    end
-
     get '/style.css' do
       begin
         # Try to use wiki version
@@ -152,8 +153,8 @@ module Wiki
         sass :style, :sass => {:style => :compact}
       end
     end
-    
-    get '/archive', '/:path/archive' do
+
+    get '/?:path?/archive' do
       @tree = Tree.find!(@repo, params[:path])
       content_type 'application/x-tar-gz'
       attachment "#{@tree.safe_name}.tar.gz"
@@ -167,33 +168,12 @@ module Wiki
       end
     end
 
-    get '/history', '/:path/history' do
+    get '/?:path?/history' do
       @object = Object.find!(@repo, params[:path])
       haml :history
     end
 
-    get '/changelog.rss', '/:path/changelog.rss' do
-      object = Object.find!(@repo, params[:path])
-      cache_control(object, 'changelog')
-
-      require 'rss/maker'
-      content_type 'application/rss+xml', :charset => 'utf-8'
-      content = RSS::Maker.make('2.0') do |rss|
-        rss.channel.title = App.config['title']
-        rss.channel.link = request.scheme + '://' +  (request.host + ':' + request.port.to_s)
-        rss.channel.description = App.config['title'] + ' Changelog'
-        rss.items.do_sort = true
-        object.history.each do |commit|
-          i = rss.items.new_item
-          i.title = commit.message
-          i.link = request.scheme + '://' + (request.host + ':' + request.port.to_s)/object.path/commit.sha
-          i.date = commit.committer.date
-        end
-      end
-      content.to_s
-    end
-
-    get '/diff', '/:path/diff' do
+    get '/?:path?/diff' do
       @object = Object.find!(@repo, params[:path])
       @diff = @object.diff(params[:from], params[:to])
       haml :diff
@@ -211,11 +191,16 @@ module Wiki
 
     get '/new', '/upload', '/:path/new', '/:path/upload' do
       begin
+        # Redirect to edit for existing pages
+        if !params[:path].blank? && Object.find(@repo, params[:path])
+          redirect (params[:path]/'edit').urlpath
+        end
         @page = Page.new(@repo, params[:path])
         boilerplate @page
+        check_name_clash(params[:path])
       rescue MessageError => error
-        message :new, error.message
-      end        
+        message :error, error.message
+      end
       haml :new
     end
 
@@ -223,11 +208,12 @@ module Wiki
       begin
         show
       rescue Object::NotFound
-        params[:path] ||= ''
-        redirect(params[:sha] ? params[:path].urlpath : (params[:path]/'new').urlpath)
+        request.env['wiki.redirect_to_new'] = true
+        pass
       end
     end
 
+    # Edit form sends put requests
     put '/:path' do
       @page = Page.find!(@repo, params[:path])
       begin
@@ -245,7 +231,7 @@ module Wiki
 
           if params[:preview]
             engine = Engine.find(@page)
-            @preview_content = engine.output(@page) if engine.layout?
+            @preview_content = engine.render(@page) if engine.layout?
             haml :edit
           else
             @page.save(params[:message], @user.author)
@@ -258,19 +244,22 @@ module Wiki
       end
     end
 
+    # New form sends post request
     post '/', '/:path' do
       begin
         @page = Page.new(@repo, params[:path])
         if action?(:upload) && params[:file]
+          check_name_clash(params[:path])
           @page.write(params[:file][:tempfile].read, 'File uploaded', @user.author)
           redirect params[:path].urlpath
         elsif action?(:new)
           @page.content = params[:content]
           if params[:preview]
             engine = Engine.find(@page)
-            @preview_content = engine.output(@page) if engine.layout?
+            @preview_content = engine.render(@page) if engine.layout?
             haml :new
           else
+            check_name_clash(params[:path])
             @page.save(params[:message], @user.author)
             redirect params[:path].urlpath
           end
@@ -285,6 +274,27 @@ module Wiki
 
     private
 
+    def check_name_clash(path)
+      path = (path || '').urlpath
+      patterns = self.class.routes.values.inject([], &:+).map {|x| x[0] }.uniq
+
+      # Remove overly general patterns
+      patterns.delete(%r{.*[^\/]$}) # Sinatra static files
+      patterns.delete(%r{^/(#{PATH_PATTERN})$}) # Path
+      patterns.delete(%r{^/(#{PATH_PATTERN})/(#{SHA_PATTERN})$}) # Path with unstrict sha
+      patterns.delete(%r{^/(#{SHA_PATTERN})$}) # Root with unstrict sha
+
+      # Add pattern to ensure availability of strict sha urls
+      # Shortcut sha urls (e.g /Beef) can be overridden
+      patterns << %r{^/(#{STRICT_SHA_PATTERN})$}
+      patterns << %r{^/(#{PATH_PATTERN})/(#{STRICT_SHA_PATTERN})$}
+
+      patterns.each do |pattern|
+        raise MessageError.new("Path is not allowed") if pattern =~ path
+      end
+    end
+
+    # Cache control for object
     def cache_control(object, tag)
       if App.production?
         response['Cache-Control'] = 'private, must-revalidate, max-age=0'
@@ -293,6 +303,7 @@ module Wiki
       end
     end
 
+    # Show page or tree
     def show(object = nil)
       object = Object.find!(@repo, params[:path], params[:sha]) if !object || object.new?
       cache_control(object, 'show')
@@ -303,7 +314,7 @@ module Wiki
       else
         @page = object
         engine = Engine.find(@page, params[:output])
-        @content = engine.output(@page)
+        @content = engine.render(@page)
         if engine.layout?
           haml :page
         else
@@ -313,6 +324,7 @@ module Wiki
       end
     end
 
+    # Boilerplate for new pages
     def boilerplate(page)
       if page.path == 'style.sass'
         page.content = lookup_template :sass, :style
@@ -321,5 +333,3 @@ module Wiki
 
   end
 end
-
-Wiki::App.safe_require_all(File.join(Wiki::App.root, 'plugins'))

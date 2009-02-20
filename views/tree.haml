@@ -1,9 +1,9 @@
 :ruby
   @menu   = :version, :history, :archive, :new
   @title  = @tree.pretty_name
-  @footer = "<a href=\"#{object_path(@tree, :sha => @tree.last_commit)}\">Permalink</a> &bull; " +
-            "Version <a class=\"sha\" href=\"#{object_path(@tree, :sha => @tree.last_commit)}\">#{@tree.last_commit.sha.truncate(8, '&hellip;')}</a> " +
-            "by #{@tree.last_commit.committer.name}, #{date @tree.last_commit.date}"
+  @footer = "<a href=\"#{object_path(@tree, :sha => @tree.latest_commit)}\">Permalink</a> | " +
+            "Version <a class=\"sha\" href=\"#{object_path(@tree, :sha => @tree.latest_commit)}\">#{@tree.latest_commit.sha.truncate(8, '&hellip;')}</a> " +
+            "by #{@tree.latest_commit.committer.name}, #{date @tree.latest_commit.committer_date}"
   @feed = (@tree.path/'changelog.rss').urlpath
 %table.sortable
   %thead

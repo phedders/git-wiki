@@ -19,5 +19,4 @@
     %tr
       %td Files
       %td= @diff.size
-%p
-  ~ Wiki::Highlighter.text(@diff.patch, 'diff')
+%p~ format_patch(@diff)

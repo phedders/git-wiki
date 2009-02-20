@@ -1,5 +1,13 @@
 require 'wiki/extensions'
 
+def reset_timestamp
+  $start_time = Time.now
+end
+
+def timestamp
+  STDERR.puts caller[0] + " " + (Time.now - $start_time).to_s
+end
+
 module Wiki
   class WikiError < StandardError; end
 
@@ -11,20 +19,13 @@ module Wiki
       base.extend self
     end
 
+    def escape_html(html)
+      CGI::escapeHTML(html.to_s)
+    end
+
     def forbid(conds)
       failed = conds.keys.select {|key| conds[key]}
       raise MessageError.new(failed) if !failed.empty?
-    end
-
-    def safe_require(name)
-      require(name)
-      true
-    rescue LoadError
-      false
-    end
-
-    def safe_require_all(name)
-      Dir.glob(File.join(name, '**/*.rb')).each { |file| safe_require file }
     end
   end
 end

@@ -26,6 +26,11 @@ class TC_Utils < Test::Unit::TestCase
     assert_equal "a\nlong\ntext", "a\nlong\ntext".last_lines(10)
   end
 
+  def test_begins_with?
+    assert '123456789'.begins_with?('12')
+    assert !'123456789'.begins_with?('23')
+  end
+
   def test_ends_with?
     assert '123456789'.ends_with?('89')
     assert !'123456789'.ends_with?('98')

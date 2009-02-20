@@ -8,6 +8,7 @@ module Wiki
 
     attr_accessor :email
     attr_reader :password
+    question_accessor :anonymous
     transient :anonymous
 
     def initialize(name, password, email, anonymous)
@@ -16,8 +17,6 @@ module Wiki
       @anonymous = anonymous
       @password = crypt(password)
     end
-
-    def anonymous?; @anonymous; end
 
     def change_password(oldpassword, password, confirm)
       forbid('Passwords do not match' => password != confirm,

@@ -1,3 +1,4 @@
 - @menu  = :new
-- @title = CGI::escapeHTML(@error.message)
-%pre&= @error.backtrace.join("\n")
+- @title = escape_html @error.message
+- if Wiki::App.development?
+  %pre&= (@error.backtrace || []).join("\n")

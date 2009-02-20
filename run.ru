@@ -1,11 +1,19 @@
 #!/usr/bin/env rackup
-require 'wiki/app'
-require 'rack'
-#require 'rack/contrib'
+
+ENV['RACK_ENV'] = env
 
 path = File.expand_path(File.dirname(__FILE__))
-config_file = File.join(path, 'config.yml')
-config = if File.exists?(config_file)
+
+$: << File.join(path, 'lib')
+require 'wiki/app'
+
+config_file = if ENV['WIKI_CONFIG']
+  ENV['WIKI_CONFIG']
+else
+  File.join(path, 'config.yml')
+end
+
+config = if File.file?(config_file)
   YAML.load_file(config_file)
 else
   { 'title'        => 'Git-Wiki',
@@ -16,11 +24,32 @@ else
     'loglevel'     => 'INFO',
     'logfile'      => File.join(path, '.wiki', 'log'),
     'default_mime' => 'text/x-creole',
-    'main_page'    => 'Home'
+    'main_page'    => 'Home',
+    'rewrite_base' => nil,
+    'profiling'    => false,
   }
 end
 
+require 'rack/path_info'
+use Rack::PathInfo
+
+if config['profiling']
+  require 'rack/contrib'
+  use Rack::Profiler, :printer => :graph
+end
+
+if !config['rewrite_base'].blank?
+  require 'rack/rewrite'
+  use Rack::Rewrite, :base => config['rewrite_base']
+end
+
+# FIXME: Problem with fastcgi handler
+if server == 'fastcgi'
+  options.delete :File
+  options.delete :Port
+end
+
 use Rack::Session::Pool
-#use Rack::Profiler, :printer => :graph
 Wiki::App.set :config, config
 run Wiki::App
+

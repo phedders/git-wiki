@@ -30,7 +30,7 @@ blockquote, q
 ins
   :text-decoration      none
 
-b
+b, strong
   :font-weight          bold
 
 i, em
@@ -47,7 +47,7 @@ table
 
 body
   :color #000
-  :background #FFFFCD
+  :background #FFF
   :font-family Verdana, Arial, Helvetica, sans-serif
   :font-size 10pt
 
@@ -55,10 +55,10 @@ h1
   :font-size 180%
 
 h2
-  :font-size 140%
+  :font-size 170%
 
 h3
-  :font-size 140%
+  :font-size 150%
 
 h4
   :font-size 120%
@@ -72,20 +72,24 @@ h6
 h1,h2,h3,h4,h5,h6
   :font-family Georgia, serif
   :color #0b3e71
-  :margin 0.3em 0
+  :margin 1em 0 0.5em 0
+  :border-bottom 1px solid #999
 
 ul,ol,p
   :margin 0.8em 0 0.8em 0
 
+ul,ol ul,ol
+  :margin 0
+
 ul
-  :list-style-type disc 
+  :list-style-type disc
 
 ol
   :list-style-type decimal
 
 ul, ol
   :list-style-position outside
-  :padding-left 2em
+  :padding-left 1.5em
 
 table
   :background #999
@@ -102,47 +106,64 @@ table
     &.odd
       :background #EEF
     .header
-      :background-image url(/images/table_bg.png)
+      :background-image url(sys/images/table_bg.png)
       :background-repeat no-repeat
       :background-position center right
       :cursor pointer
       :padding-right 1.5em
     .headerSortUp
-      :background-image url(/images/table_dsc.png)
+      :background-image url(sys/images/table_dsc.png)
     .headerSortDown
-      :background-image url(/images/table_asc.png)
+      :background-image url(sys/images/table_asc.png)
   &.highlighttable
     :border none
     :background transparent
-    td, th
+    :border-spacing 0
+    :border-collapse collapse
+    td, th, tr
       :border none
       :padding 0
     .linenos
       :color #555
 
-a, a:visited
-  :color #0B3E71
-  :text-decoration none
+a
+  &, &:visited
+    :color #0B3E71
+    :text-decoration none
+  &:hover, &:active
+    :color #FFF
+    :background #0B3E71
+    :text-decoration none
+  &.img
+    :background transparent
+  div.img &
+    :border 1px solid #999
+    :float right
+    :text-align center
+    :color #000
+    :background #FFF
+    :padding 0.2em
+    img
+      :display block
 
-a:hover, a:active
-  :color #FFF
-  :background #0B3E71
-  :text-decoration none
+img
+  :vertical-align middle
 
 hr
-  :background #AAA
+  :background #999
   :border none
   :height 1px
 
 #header
   :background #0B3E71
-  :background-image url(/images/header_bg1.png)
+  :background-image url(sys/images/header_bg1.png)
   :background-repeat repeat-x
   :background-position top left
   :padding 5px
   :clear both
   :height 2.5em
   h1
+    :border none
     :color #FFFFC2
     :font-family Georgia, serif
     :font-size 200%
@@ -153,7 +174,7 @@ hr
     :float left
   #info
     :float right
-    :border 1px solid #AAA
+    :border 1px solid #999
     :background #FFFFC2
     :padding 0.2em
     :margin 0.3em
@@ -168,7 +189,7 @@ hr
       :padding-left 20px
       :background-position 0.2em 0.2em
       :background-repeat no-repeat
-      :background-image url(/images/search.png)
+      :background-image url(sys/images/search.png)
 
 #menu
   :background #FFF
@@ -223,38 +244,66 @@ hr
           :float left
           :margin 0.2em 0.5em 0.2em 0
 
-#footer
-  :clear both
-  :border-top 1px solid #999
-  :border-bottom 1px solid #999
-  :background #FFF
-  :color #999
-  :padding 0 3em
-  :height 1.7em
-  :text-align right
-  :line-height 1.7em
-
-#body
-  :display block
-  :overflow hidden
-  :margin 0
-  :padding 0
-  #content
-    :padding 1em 1em 1em 2em
+#container
+  :background-color #FFFFCD
+  :background-image url(sys/images/container_bg.png)
+  :background-repeat repeat-y
+  :background-position top left
+  #body
     :display block
-    :float left
-    :width 65%
-  #sidebar
-    :min-height 600px
-    :width 12em
-    :display block
-    :float left
-    :border-right 1px solid #999
-    :border-bottom 1px solid #999
-    :background #EEF
-    :height 20em
-    :padding 1em
-    :margin 0 0 1em 0
+    :overflow hidden
+    :margin 0
+    :padding 0
+    :background-image url(sys/images/body_bg.png)
+    :background-repeat repeat-x
+    :background-position top left
+    #content
+      :min-height 600px
+      :padding 1em 3.5em
+      :display block
+      :float left
+      :width 65%
+    #sidebar
+      :margin 0
+      :padding 0
+      :width 155px
+      :display block
+      :float left
+      :height 20em
+      :font-variant small-caps
+      h1, h2, h3, h4, h5, h6
+        :font-size 140%
+        :background #FFF
+        :font-weight normal
+        :padding 0 5px
+        :margin 1em 0 0 0
+        :border-top 1px solid #85AAFF
+        :border-bottom 1px solid #85AAFF
+        :display block
+      ul
+        :margin 0
+        :padding 0
+        :list-style-type none
+        li
+          :margin 0
+          :border-bottom 1px solid #85AAFF
+          a
+            :padding 0 5px
+            :margin 0
+            :display block
+      ul ul a
+        :padding 0 20px
+      ul ul ul a
+        :padding 0 35px
+  #footer
+    :color #555
+    :background-image url(sys/images/footer_bg.png)
+    :background-repeat repeat-x
+    :background-position top left
+    :padding 2em 3em 0 3em
+    :text-align right
+    :line-height 2em
+    :clear both
 
 .sha, tt, pre, code, kbd
   :font-family "Bitstream Vera Mono", monospace
@@ -305,18 +354,20 @@ form
     :clear		left
 
 .preview
-  :border 1px dashed #AAA
+  :border 1px dashed #999
   :margin 1em 0
   :padding 1em
 
 .box
   :clear both
   :display block
-  :border 1px solid #AAA
+  :border 1px solid #999
   :background #FFF
   :padding 1em
   :margin-bottom 1em
   :overflow hidden
+  h1, h2, h3, h4, h5, h6
+    :margin 0.2em 0
 
 .ui-tabs
   .ui-tabs-hide
@@ -330,17 +381,18 @@ form
     :float left
     :width 100%
     > li
-      :background #FFF
+      :font-variant small-caps
+      :background #EEF
       :float left
       :padding 0
       :margin -1px 0 0 1em
       :height 1.7em
       :line-height 1.7em
       :border 1px solid #999
-      :border-bottom none
       :color #333
       &.ui-tabs-selected > a
-        :background #EEF
+        :background #FFF
+        :border-bottom 1px solid #FFF
       > a
         :display block
         :text-decoration none
@@ -354,17 +406,28 @@ form
 .date
   :cursor pointer
 
+p.toc
+  :background #FFF
+  :border 1px solid #999
+  :padding 1em
+  > ul
+    :padding 0
+  ul
+    :margin 0
+    :list-style-type none
+  .toc1 a, .toc1 .counter
+    :font-weight bold
+
 body.timemachine
-  :background #EEE
   #header
-    :background-image url(/images/header_bg2.png)
+    :background-image url(sys/images/header_bg2.png)
     :background-repeat repeat-x
     :background-position top left
     h1.timemachine
       :font-style italic
       :margin-left 1em
       :color #D70
-  #sidebar
-    :background #DDD
+  #container
+    :background-color #EEE
   tr.odd
     :background #DDD

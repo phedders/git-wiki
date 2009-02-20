@@ -1,4 +1,4 @@
-- @title = "New page #{CGI::escapeHTML @page.path}"
+- @title = "New page #{escape_html @page.path}"
 - @title = (@preview_content ? 'Preview new page ' : 'New page ') + @page.pretty_name
 - @menu = :new
 - if @preview_content

@@ -1,7 +1,6 @@
-- object = @object || @page || @tree
 %ul
   %li
-    %a{:href=>object_path(object, :path => Wiki::App.config['main_page'].urlpath)}
+    %a{:href=>object_path(object, :path => Wiki::App.config['main_page'].urlpath), :accesskey=>'z'}
       = image('Home', :home)
       Home
   = breadcrumbs(object)
@@ -12,16 +11,16 @@
   - if @menu.include?(:version)
     - if object.prev_commit
       %li
-        %a{:href=>object_path(object, :sha => object.prev_commit)} &laquo; Older
+        %a{:href=>object_path(object, :sha => object.prev_commit), :accesskey=>'o'} &laquo; Older
     - if object.next_commit
       %li
-        %a{:href=>object_path(object, :sha => object.next_commit)} Newer &raquo;
+        %a{:href=>object_path(object, :sha => object.next_commit), :accesskey=>'n'} Newer &raquo;
     - if !object.current?
       %li
-        %a{:href=> object.path.urlpath } Current
+        %a{:href=> object.path.urlpath, :accesskey=>'c'} Current
   - if @menu.include?(:view)
     %li
-      %a{:href=> object.path.urlpath } View
+      %a{:href=> object.path.urlpath, :accesskey=>'c'} View
   - if @menu.include?(:new)
     %li
       %a{:href=> object && object.tree? ? (object.path/'new page/new').urlpath : '/new page/new'  }
@@ -29,16 +28,16 @@
         New Page
   - if @menu.include?(:edit) && object.page?
     %li
-      %a{:href=>action_path(object, :edit) }
+      %a{:href=>action_path(object, :edit), :accesskey=>'e'}
         = image('Edit', :edit)
         Edit
   - if @menu.include?(:history)
     %li
-      %a{:href=>action_path(object, :history) }
+      %a{:href=>action_path(object, :history), :accesskey=>'h'}
         = image('History', :history)
         History
   - if @menu.include?(:archive)
     %li
-      %a{:href=>action_path(object, :archive) }
+      %a{:href=>action_path(object, :archive)}
         = image('Archive', :archive)
         Archive

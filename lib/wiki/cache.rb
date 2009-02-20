@@ -20,7 +20,7 @@ module Wiki
 
     class Disk < Cache
       attr_reader :root
-      
+
       def initialize(root)
         @root = root
         FileUtils.mkdir_p root, :mode => 0755
@@ -43,7 +43,7 @@ module Wiki
       end
 
       def write(bucket, key, content)
-        temp_file = File.join(root, ['tmp', $$, Thread.current.object_id].join('-'))
+        temp_file = File.join(root, ['tmp', $$, Thread.current.object_id.abs.to_s(36)].join('-'))
         File.open(temp_file, 'wb') do |dest|
           content.each do |part|
             dest.write(part)

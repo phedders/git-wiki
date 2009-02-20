@@ -7,3 +7,5 @@ loglevel:     INFO
 logfile:      '/home/user/wiki/log'
 default_mime: 'text/x-creole'
 main_page:    'Home'
+rewrite_base: ''
+profiling:    false

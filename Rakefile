@@ -28,11 +28,17 @@ namespace :test do
   end
 end
 
-desc 'Remove wiki folder'
+desc 'Cleanup'
 task :clean do |t|
-  FileUtils.rm_rf '.wiki'
   FileUtils.rm_rf 'doc'
   FileUtils.rm_rf 'coverage'
+  FileUtils.rm_rf '.wiki/cache'
+  FileUtils.rm_rf '.wiki/log'
+end
+
+desc 'Remove wiki folder'
+task 'clean:all' => :clean do |t|
+  FileUtils.rm_rf '.wiki'
 end
 
 desc 'Generate AkaPortal documentation'
