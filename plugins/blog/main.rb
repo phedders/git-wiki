@@ -2,6 +2,10 @@ description    'Blog aspect'
 dependencies   'tags', 'utils/assets', 'utils/xml'
 export_scripts '*.css'
 
+Page.attributes do
+  list(:tags)
+end
+
 Application.get '(/:path)/:year(/:month)', :year => '20\d{2}', :month => '(?:0[1-9])|(?:1[0-2])' do
   reroute :get, "/#{params[:path]}", :year => params[:year], :month => params[:month], :aspect => 'blog'
 end
@@ -58,6 +62,7 @@ end
 
 __END__
 @@ blog.slim
+<<<<<<< HEAD:plugins/blog/main.rb
 - if @articles.empty?
   .error= :no_articles.t
 - else
@@ -72,6 +77,24 @@ __END__
         - if !full
           a.full href=absolute_path(page.path) = :full_article.t
 = pagination(page_path(@page), @page_count, @page_nr, :aspect => 'blog')
+=======
+.blog
+  - @articles.each do |page, content|
+    .article
+      h2
+        a.name href=absolute_path(page) = page.name
+      .date= date page.version.date
+      .author= :written_by.t(:author => page.version.author.name)
+      - tags = page.attributes['tags'].to_a
+      - if !tags.empty?
+        ul.tags
+          - tags.each do |tag|
+            li= tag
+      .content== content
+      - if !full
+        a.full href=absolute_path(page.path) = :full_article.t
+= pagination(page_path(@page), @page_count, @page_nr, :output => 'blog')
+>>>>>>> parent of 51e20b1... remove blog tags:plugins/blog/blog.rb
 @@ menu.slim
 table.blog-menu
   - years.keys.sort.each do |year|
